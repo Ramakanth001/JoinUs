@@ -1,0 +1,1 @@
+cd /mnt/c/Users/Ramakanth/Desktop/Personal/projects/join_us
