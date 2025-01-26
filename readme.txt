@@ -1,1 +1,1 @@
-This is a simple feed web project build using node express and mysql along with some front end
+This is a simple feed web project build using node.js express.js and mysql2 along with some front end
