@@ -1,1 +1,1 @@
-cd /mnt/c/Users/Ramakanth/Desktop/Personal/projects/join_us
+This is a simple feed web project build using node express and mysql along with some front end
