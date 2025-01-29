@@ -61,7 +61,7 @@ Follow these steps to get the project up and running on your local machine.
 First, clone the project to your local machine:
 
 ```bash
-git clone https://github.com/Ramakanth001/JoinUs-WebApp.git
+git clone https://github.com/Ramakanth001/JoinUs.git
 ```
 
 ### 2. Install dependencies
