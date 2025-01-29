@@ -9,7 +9,9 @@ var mysql = require('mysql2');
 var bodyParser = require("body-parser");
 
 app.set("view engine", "ejs");
+
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(express.static(__dirname + "/public"));
 
 // Used to export creds from envvironment
 require('dotenv').config();
