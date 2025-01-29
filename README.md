@@ -19,6 +19,7 @@ This is a simple web application built using **Node.js**, **Express.js**, **MySQ
 - **User Input**: Users can submit their email address via a textbox.
 - **Dynamic Count**: The user count updates dynamically every time an email is entered.
 - **Responsive Design**: Built with responsive CSS for a user-friendly interface.
+- **Secure Database Credentials**: Uses a `.env` file to securely store database credentials, ensuring sensitive data is not hard-coded into the application.
 
 ---
 
