@@ -6,17 +6,45 @@
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="/admin.css">
 
-    <!-- Load TinyMCE from the Node.js server -->
+    <!-- Load TinyMCE from local /tinymce directory -->
     <script src="/tinymce/tinymce.min.js"></script>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             tinymce.init({
                 selector: '#email_content',
-                menubar: false,
-                plugins: 'lists link image table code',
-                toolbar: 'undo redo | bold italic underline | bullist numlist | link image | code',
-                height: 300
+                height: 400,
+                plugins: 'advlist autolink lists link image charmap print preview anchor pagebreak code codesample table media imagetools',
+                toolbar: 'undo redo | formatselect | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media | forecolor backcolor | code codesample | table',
+                menubar: 'file edit view insert format tools table help',
+                image_advtab: true,
+                file_picker_types: 'image media file',
+                automatic_uploads: true,
+                images_upload_url: '/upload',
+                file_picker_callback: function(callback, value, meta) {
+                    var input = document.createElement('input');
+                    input.setAttribute('type', 'file');
+                    if (meta.filetype === 'image') {
+                        input.setAttribute('accept', 'image/*');
+                    }
+                    input.onchange = function() {
+                        var file = this.files[0];
+                        var formData = new FormData();
+                        formData.append('file', file);
+
+                        fetch('/upload', {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            callback(data.location, { alt: file.name });
+                        })
+                        .catch(error => console.error('Error uploading:', error));
+                    };
+                    input.click();
+                },
+                content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; }'
             });
         });
 
@@ -43,7 +71,18 @@
         <section id="email-section">
             <h2>Send Email</h2>
             <form id="send-email-form" method="POST" action="/admin/send-mail">
+                <label for="recipient">Recipient Email:</label>
+                <input type="email" id="recipient" name="recipient" required>
+
+                <label for="subject">Email Subject:</label>
+                <input type="text" id="subject" name="subject" required>
+
+                <label for="email_content">Email Content:</label>
                 <textarea id="email_content" name="email_content" placeholder="Write your email content here..." required></textarea>
+
+                <label for="file">Attach File:</label>
+                <input type="file" id="file" name="file">
+
                 <button type="submit">Send Email</button>
             </form>
         </section>
