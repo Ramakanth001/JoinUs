@@ -1,0 +1,239 @@
+I need your help in setting up authentication for admin
+
+(File hierarchy is given to you in attachment)
+
+Tech used -->
+Node.js - JavaScript runtime used for server-side logic.
+Express.js - Framework for building the web server.
+MySQL2 - Database to store and manage user data.
+EJS - Templating engine for rendering dynamic views.
+CSS - For styling the frontend.
+
+App.js -->
+// Express init
+var express =  require('express');
+var app = express();
+
+//used to connect to DB
+var mysql = require('mysql2'); 
+
+// Middleware that  parses incoming request bodies, making the data accessible in req.body.
+var bodyParser = require("body-parser");
+
+//Used to send mails
+var nodemailer = require("nodemailer");
+
+app.set("view engine", "ejs");
+
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(express.static(__dirname + "/public"));
+
+// Used to export creds from envvironment
+require('dotenv').config();
+
+// Setup DB connection - creds in .env file 
+var connection = mysql.createConnection({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
+});
+
+// Email sender setup - creds in .env
+var transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
+
+// Configuring custom HTML using Embedded JS - EJS
+app.get("/", function(request, response) {
+  var q = 'SELECT COUNT(*) as count FROM users';
+  connection.query(q, function (error, results) {
+    if (error) throw error;
+    // var msg = "We have " + results[0].count + " users";
+    var user_count = results[0].count;
+    response.render("home", {count:user_count});
+    });
+  });
+
+  app.post("/register", function(request, response) {
+    console.log("POST REQUEST SENT TO " + request.body.email);
+  
+    var defaultGroupName = "General";
+    
+    // Get the group ID for "General"
+    connection.query('SELECT id FROM dl_groups WHERE dl_name = ?', [defaultGroupName], function(err, results) {
+      if (err) throw err;
+      
+      if (results.length > 0) {
+        var groupId = results[0].id;
+        
+        var person = {
+          email: request.body.email,
+          subscribed: true,
+          group_id: groupId  // Use group_id instead of group_name
+        };
+  
+        connection.query('INSERT INTO users SET ?', person, function(error, result) {
+          if (error) throw error;
+          console.log("User registered:", request.body.email);
+          response.redirect("/");
+        });
+      } else {
+        console.log("Default group not found.");
+        response.send("Error: Default group not found.");
+      }
+    });
+  });
+  
+
+
+
+
+
+// Route to send emails to a selected group
+app.post("/register", function(request, response) {
+  console.log("POST REQUEST SENT TO " + request.body.email);
+
+  var defaultGroupName = "General";
+  
+  // Get the group ID for "General"
+  connection.query('SELECT id FROM dl_groups WHERE dl_name = ?', [defaultGroupName], function(err, results) {
+    if (err) throw err;
+    
+    if (results.length > 0) {
+      var groupId = results[0].id;
+      
+      var person = {
+        email: request.body.email,
+        subscribed: true,
+        group_id: groupId  // Use group_id instead of group_name
+      };
+
+      connection.query('INSERT INTO users SET ?', person, function(error, result) {
+        if (error) throw error;
+        console.log("User registered:", request.body.email);
+        response.redirect("/");
+      });
+    } else {
+      console.log("Default group not found.");
+      response.send("Error: Default group not found.");
+    }
+  });
+});
+
+app.get("/admin_login", function(req, res) {
+  res.render("admin_login");
+});
+
+app.get("/admin/groups", function(req, res) {
+  var q = `
+      SELECT DISTINCT dl_groups.dl_name 
+      FROM users 
+      JOIN dl_groups ON users.group_id = dl_groups.id;
+  `;
+
+  connection.query(q, function (error, results) {
+      if (error) throw error;
+
+      var groups = results.map(row => row.dl_name);
+      res.json({ groups });
+  });
+});
+
+
+
+app.listen(8080, function() {
+  console.log("Listening on 8080 port!");
+  console.log("Access using http://localhost:8080");
+
+-----------------------------------------
+admin_login.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <link rel="stylesheet" href="/admin.css">
+</head>
+<body>
+    <div class="admin-container">
+        <h1>Admin Login</h1>
+        <form id="login-form" method="POST" action="/auth/login">
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+</body>
+</html>
+------------------------
+admin.css -->
+/* Admin Dashboard Styles */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
+}
+
+.admin-container {
+  width: 50%;
+  margin: 20px auto;
+  padding: 20px;
+  background: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+h1, h2, h3 {
+  text-align: center;
+  color: #333;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+}
+
+input, select, textarea {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+button {
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  background: #e0e0e0;
+  margin: 5px 0;
+  padding: 10px;
+  border-radius: 5px;
+}
+-----------------------
+
+i am able to lauch the project and I can see the admin_login page. How to give these creds to express and then how to authenticate successfully?

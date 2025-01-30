@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="/admin.css">
+    <script>
+        // Redirect to login if not authenticated
+        fetch('/auth/check').then(response => {
+            if (!response.ok) window.location.href = '/admin/login';
+        });
+    </script>
+</head>
+<body>
+    <div class="admin-container">
+        <h1>Admin Dashboard</h1>
+        <button onclick="logout()">Logout</button>
+        
+        <section id="group-management">
+            <h2>Manage Groups</h2>
+            <form id="create-group-form" method="POST" action="/admin/groups/create">
+                <input type="text" name="group_name" placeholder="New Group Name" required>
+                <button type="submit">Create Group</button>
+            </form>
+            
+            <h3>Existing Groups</h3>
+            <ul id="group-list">
+                <!-- Groups will be populated dynamically -->
+            </ul>
+
+            <form id="delete-group-form" method="POST" action="/admin/groups/delete">
+                <select name="group_id" id="delete-group-select" required>
+                    <!-- Groups will be populated dynamically -->
+                </select>
+                <button type="submit">Delete Group</button>
+            </form>
+        </section>
+        
+        <section id="email-section">
+            <h2>Send Email</h2>
+            <form id="send-email-form" method="POST" action="/admin/send-mail">
+                <label for="group">Select Group:</label>
+                <select name="group" id="group-select" required>
+                    <!-- Groups will be populated dynamically -->
+                </select>
+                <textarea name="email_content" placeholder="Write your email content here..." required></textarea>
+                <button type="submit">Send Email</button>
+            </form>
+        </section>
+    </div>
+
+    <script>
+        function logout() {
+            fetch('/auth/logout', { method: 'POST' })
+                .then(() => window.location.href = '/admin/login');
+        }
+    </script>
+</body>
+</html>
