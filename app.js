@@ -36,6 +36,7 @@ app.use('/auth', authRoutes);
 // Protect admin routes
 var { isAuthenticated } = require('./auth/authController');
 app.get('/admin_dashboard', isAuthenticated, function(req, res) {
+  console.log("Admin session in dashboard:", req.session);  // Debugging session
   res.render('admin_dashboard');
 });
 
