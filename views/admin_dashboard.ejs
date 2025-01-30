@@ -5,7 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="/admin.css">
+
+    <!-- Load TinyMCE from the Node.js server -->
+    <script src="/tinymce/tinymce.min.js"></script>
+
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            tinymce.init({
+                selector: '#email_content',
+                menubar: false,
+                plugins: 'lists link image table code',
+                toolbar: 'undo redo | bold italic underline | bullist numlist | link image | code',
+                height: 300
+            });
+        });
+
         // Redirect to login if not authenticated
         fetch('/auth/is-authenticated')
             .then(response => response.json())
@@ -14,6 +28,11 @@
                     window.location.href = '/admin_login';
                 }
             });
+
+        function logout() {
+            fetch('/auth/logout', { method: 'GET' })
+                .then(() => window.location.href = '/admin_login');
+        }
     </script>
 </head>
 <body>
@@ -24,17 +43,10 @@
         <section id="email-section">
             <h2>Send Email</h2>
             <form id="send-email-form" method="POST" action="/admin/send-mail">
-                <textarea name="email_content" placeholder="Write your email content here..." required></textarea>
+                <textarea id="email_content" name="email_content" placeholder="Write your email content here..." required></textarea>
                 <button type="submit">Send Email</button>
             </form>
         </section>
     </div>
-
-    <script>
-        function logout() {
-            fetch('/auth/logout', { method: 'GET' })
-                .then(() => window.location.href = '/admin_login');
-        }
-    </script>
 </body>
 </html>
