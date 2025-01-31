@@ -1,3 +1,6 @@
+# Problem Statement
+Influencers need a direct way to engage their community. This project allows users to subscribe via email and receive updates, ensuring effective communication.
+
 # Simple Feed Web Project
 
 This is a simple web application built using **Node.js**, **Express.js**, **MySQL2**, **EJS**, and **CSS** for the frontend. The project allows users to input their email and see the user count update dynamically.
