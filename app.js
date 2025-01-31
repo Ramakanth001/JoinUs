@@ -62,38 +62,52 @@ var transporter = nodemailer.createTransport({
 });
 
 app.post("/admin/send-mail", upload.single('file'), function(req, res) {
-    const { recipient, subject, email_content } = req.body;
+    const { subject, email_content } = req.body;
     const attachment = req.file ? {
         filename: req.file.originalname,
         path: req.file.path
     } : null;
 
-    let mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: recipient,
-        subject: subject,
-        html: email_content,
-        attachments: attachment ? [attachment] : []
-    };
-
-    transporter.sendMail(mailOptions, function(error, info) {
+    // Fetch subscribed users from the database
+    connection.query('SELECT email FROM users WHERE subscribed = 1', function (error, results) {
         if (error) {
-            console.error("Error sending email:", error);
-            res.status(500).send("Failed to send email.");
-        } else {
-            console.log("Email sent:", info.response);
-            res.redirect("/admin_dashboard");
+            console.error("Database error:", error);
+            return res.status(500).send("Failed to fetch recipients.");
         }
+
+        const recipients = results.map(row => row.email);
+        if (recipients.length === 0) {
+            console.log("No subscribed users to send emails.");
+            return res.status(400).send("No subscribed users found.");
+        }
+
+        let mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: recipients.join(","),  // Sending to all subscribed users
+            subject: subject,
+            html: email_content,
+            attachments: attachment ? [attachment] : []
+        };
+
+        transporter.sendMail(mailOptions, function(error, info) {
+            if (error) {
+                console.error("Error sending email:", error);
+                return res.status(500).send("Failed to send email.");
+            } else {
+                console.log("Email sent:", info.response);
+                return res.redirect("/admin_dashboard");
+            }
+        });
     });
 });
 
-// Root Route
+// Root Route (Unmodified)
 app.get("/", function(request, response) {
   var q = 'SELECT COUNT(*) as count FROM users';
   connection.query(q, function (error, results) {
     if (error) throw error;
     var user_count = results[0].count;
-    response.render("home", {count:user_count});
+    response.render("home", { count: user_count });
   });
 });
 
@@ -127,6 +141,7 @@ app.listen(8080, function() {
     console.log("Listening on port 8080");
     console.log("Access using http://localhost:8080");
 });
+
 
 
 

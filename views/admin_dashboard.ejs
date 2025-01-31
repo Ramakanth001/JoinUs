@@ -48,15 +48,6 @@
             });
         });
 
-        // Redirect to login if not authenticated
-        fetch('/auth/is-authenticated')
-            .then(response => response.json())
-            .then(data => {
-                if (!data.authenticated) {
-                    window.location.href = '/admin_login';
-                }
-            });
-
         function logout() {
             fetch('/auth/logout', { method: 'GET' })
                 .then(() => window.location.href = '/admin_login');
@@ -69,11 +60,8 @@
         <button onclick="logout()">Logout</button>
         
         <section id="email-section">
-            <h2>Send Email</h2>
-            <form id="send-email-form" method="POST" action="/admin/send-mail">
-                <label for="recipient">Recipient Email:</label>
-                <input type="email" id="recipient" name="recipient" required>
-
+            <h2>Send Email to Subscribed Users</h2>
+            <form id="send-email-form" method="POST" action="/admin/send-mail" enctype="multipart/form-data">
                 <label for="subject">Email Subject:</label>
                 <input type="text" id="subject" name="subject" required>
 
