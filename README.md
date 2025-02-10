@@ -14,6 +14,7 @@ This is a simple web application built using **Node.js**, **Express.js**, **MySQ
 - **MySQL2** - Database to store and manage user data.
 - **EJS** - Templating engine for rendering dynamic views.
 - **CSS** - For styling the frontend.
+- **TinyMCE** - API for Text Editor
 
 ---
 
