@@ -1,5 +1,5 @@
 # Problem Statement
-Communities and Content creators need a direct way to engage their audience. This project allows users to subscribe via email and receive updates, ensuring effective communication.
+Communities and Content creators need a formal way to engage their audience. This project allows users to subscribe via email and receive updates, ensuring effective communication.
 
 # Simple Feed Web Project
 
